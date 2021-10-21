@@ -44,20 +44,20 @@ grant_permissions() {
   echo "${COLOR_CYAN}clif-cli:${COLOR_NORMAL} Grant permissions ... ${COLOR_GREEN}OK${COLOR_NORMAL}"
 }
 
-# adds the kone alias to the users .bash_profile
+# Adds the clif alias to the users .bash_profile.
 update_bash_profile() {
   bash_profile="${HOME}/.bash_profile"
   if [ ! -f "${bash_profile}" ]; then
     echo "${COLOR_CYAN}clif-cli:${COLOR_NORMAL} No such file: .bash_profile"
     
-    # a typical install of macOS won't create a .bash_profile for you, so let
-    # us do it now
+    # A typical install of macOS won't create a .bash_profile for you, so let
+    # us do it now.
     touch ${bash_profile} 
 
     echo "${COLOR_CYAN}clif-cli:${COLOR_NORMAL} Create .bash_profile ... ${COLOR_GREEN}OK${COLOR_NORMAL}"
   fi
 
-  # add the alias to the bash_profile
+  # Add the alias to the bash_profile.
   echo "" >> "${bash_profile}" # add a blank line
   echo "# clif CLI" >> "${bash_profile}"
   echo "alias clif=\"${CLI_INSTALL_PATH}/cli"\" >> "${bash_profile}" # append the alias
@@ -66,7 +66,7 @@ update_bash_profile() {
 }
 
 get_project() {
-  git clone --quiet git@github.com:konecorp/kone-mobile-fsm-cli.git > /dev/null # hide the output
+  git clone --quiet git@github.com:goodcodebadcode/clif.git > /dev/null # hide the output
   if [ ! $? -eq 0 ]; then
     echo >&2 "${COLOR_RED}clif-cli: Error:${COLOR_NORMAL} Could not download the CLI."
     exit 1
@@ -76,7 +76,7 @@ get_project() {
 }
 
 is_cli_installed() {
-  # the CLI is already installed and can simply be updated, so we can exit
+  # The CLI is already installed and can simply be updated, so we can exit.
   if [ -d "${CLI_INSTALL_PATH}" ]; then
     echo "${COLOR_RED}clif-cli:${COLOR_NORMAL} The CLI is already installed. Please run '$ clif update'."
     exit 1
@@ -84,12 +84,12 @@ is_cli_installed() {
 }
 
 copy_to() {
-  # copy the contents of the cloned project by moving it to the specified 
-  # install path
+  # Copy the contents of the cloned project by moving it to the specified 
+  # install path.
   cli_dir="${HOME}/usr/local/"
   [ ! -d "${cli_dir}" ] && mkdir -p ${cli_dir}
 
-  mv "kone-mobile-fsm-cli" "${CLI_INSTALL_PATH}"
+  mv "clif" "${CLI_INSTALL_PATH}"
 
   echo "${COLOR_CYAN}clif-cli:${COLOR_NORMAL} Copy the CLI to '${CLI_INSTALL_PATH}' ... ${COLOR_GREEN}OK${COLOR_NORMAL}"
 }
