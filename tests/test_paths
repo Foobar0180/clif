@@ -1,0 +1,55 @@
+#!/bin/sh
+
+. "$CLI_WORKDIR/src/utils/utils"
+
+suppress="true" # Suppress any process output from commands.
+
+# This test uses the current directory to fully qualify the path.
+test_get_full_path_should_return_the_absolute_path_for_the_path() {
+  it "Should return the absolute path for the specified path string."
+
+  # The file or directory specified by path is not required to exist.
+  cd "$CLI_WORKDIR" # Doing this ensures we can control the working directory.
+  # Results are based on your current working directory.
+  assertEquals "$CLI_WORKDIR" "$(get_full_path `pwd`)"
+}
+
+test_get_file_name_should_return_filename_with_extension() {
+  it "Should return the characters after the last directory separator character in path."
+
+  file=$(get_file_name "/mydir/myfile.txt")
+
+  assertEquals "myfile.txt" "$file"
+}
+
+test_get_file_name_should_return_empty_when_path_is_directory() {
+  it "Should return empty when the path is a directory."
+
+  file=$(get_file_name "/mydir/")
+
+  assertEquals "" "$file"
+}
+
+test_get_file_name_should_return_empty_when_path_is_empty() {
+  it "Should return empty when the path is empty."
+
+  file=$(get_file_name)
+
+  assertEquals "" "$file"
+}
+
+test_get_file_name_should_return_path_when_path_has_no_separator() {
+  it "If path contains no separator character then return path."
+
+  file=$(get_file_name "mydir")
+
+  assertEquals "mydir" "$file"
+}
+
+__init__() {
+  test_get_full_path_should_return_the_absolute_path_for_the_path
+  test_get_file_name_should_return_filename_with_extension
+  test_get_file_name_should_return_empty_when_path_is_directory
+  test_get_file_name_should_return_empty_when_path_is_empty
+  test_get_file_name_should_return_path_when_path_has_no_separator
+}

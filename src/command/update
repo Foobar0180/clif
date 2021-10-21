@@ -1,0 +1,38 @@
+#!/bin/sh
+#
+# If you want to ensure that you are running the latest version of CLI, you can 
+# manually update it using the update command.
+#
+# When you run a command, CLI checks to see if you have the latest version. If 
+# not, the CLI automatically updates itself. To remain on the current version 
+# of the CLI and disable automatic updates, set the CLI_AUTOUPDATE_DISABLE 
+# variable to true.
+
+set -e
+. "$CLI_WORKDIR/src/utils/utils.sh"
+
+cd "$CLI_WORKDIR"
+
+# Pick out and massage parameters.
+
+local=$(git rev-parse --short HEAD)
+base=$(git rev-parse --short master@{upstream})
+
+# Shorten the object name to a unique version and prefix combo.
+from="$CLI_VERSION.$local"
+to="$CLI_VERSION.$base"
+
+# Todo (dwinchester): Add autoupdate check.
+
+if [ "$local" != "$base" ]; then
+  say "Updating CLI from ${COLOR_GREEN}$from${COLOR_NORMAL} to ${COLOR_GREEN}$to${COLOR_NORMAL}"
+
+  # Get all changes from the remote repository.
+  git pull --quiet origin master &> /dev/null
+
+  say "Updating CLI ... ${COLOR_GREEN}done${COLOR_NORMAL}"
+  exit 0
+else 
+  say "Already on latest version ${COLOR_GREEN}$to${COLOR_NORMAL}."
+fi
+exit 0

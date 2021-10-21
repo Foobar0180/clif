@@ -1,0 +1,76 @@
+#!/bin/sh
+#
+# The configure get command can be used to print a configuration value in the 
+# CLI config file.
+#
+# The get command only looks at values in the CLI configuration file. It does 
+# not resolve configuration variables specified anywhere else, including environment 
+# variables, command line arguments, etc.
+
+set -e
+. "$CLI_WORKDIR/src/utils/utils"
+
+show_help() {
+  echo ""
+  echo "Get a configuration value from the config file."
+  echo ""
+  echo "${TEXT_BOLD}USAGE:${TEXT_NORMAL}"
+  echo "  $ clif configure get [[--] <arguments>]"       
+  echo ""
+  echo "${TEXT_BOLD}ARGUMENTS:${TEXT_NORMAL}"
+  echo "  -h, --help                      Show command line help." 
+  echo "  -p, --profile <profile name>    Use a specific profile."
+  echo "  -v, --varname <variable name>   The name of the config value to retrieve."
+  echo ""
+  echo "${TEXT_BOLD}EXAMPLES:${TEXT_NORMAL}"
+  echo "  $ clif configure get --varname debug" 
+  echo "  $ clif configure get --varname app_version --profile second_user"
+  echo ""
+}
+
+profile_name=""
+
+while [ $# -ne 0 ]
+do
+  key="$1" 
+  case "$key" in
+    -h|--help|help)
+      show_help
+      exit 3
+      ;;
+    get)
+      ;;
+    -p|--profile)
+      shift
+      profile_name="$1"
+      ;;
+    -v|--varname)
+      shift
+      varname="$( to_uppercase $1 )" # All profile values are uppercase.
+      ;; 
+    *)
+      say_err "$(unknown_command_message "$key")"
+      exit 3
+      ;;
+  esac
+  shift
+done
+
+# To retrieve a value from the config file, the variable name and the profile 
+# name must be known.
+
+# The variable name cannot be blank. 
+if [ -z "$varname" ]; then
+  say_err "Variable name cannot be blank.\nPlease see the project wiki for supported options."
+  exit 1
+fi
+
+# A variable name will be scoped to the default profile, unless specified 
+# as an argument using the --profile option.
+. $( config_path "$profile_name" )
+
+# A qualified name is a name that has at least one "=" character in the name. 
+# This name provides a way to specify the config setting from which to retrieve 
+# the config variable.
+say "${varname}: ${!varname}"
+exit 0

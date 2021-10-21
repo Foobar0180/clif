@@ -1,0 +1,151 @@
+#!/bin/sh
+
+. "$CLI_WORKDIR/src/utils/utils"
+
+suppress="true" # Suppress any process output from commands.
+
+# The setUp() and tearDown() methods allow you to define instructions that 
+# will be executed before and after each test.
+
+# Method called to prepare the test. This should be called immediately before 
+# calling and running the test.
+setUp() {
+  cd "$CLI_WORKDIR/logs" && touch dummy.txt # Create a file.
+
+  # This text is added only once to the file.
+  echo "Hello, World!" > "$CLI_WORKDIR/logs/dummy.txt"
+}
+
+# Method called immediately after the test has been run and the result recorded. 
+tearDown() {
+  cd "$CLI_WORKDIR/logs" 
+
+  find  . -name 'dummy*' -exec rm {} \; # Remove all dummy files created in tests.
+
+  cd "$HOME"
+}
+
+test_read_all_text_should_throw_error_when_path_is_empty() {
+  it "Should throw an error when the path is null."
+
+  $( read_all_text )
+
+  assertIsError $?
+}
+
+# This method creates a file, reads all the text in the file, and returns it as 
+# a string. It then closes deletes the file.
+test_read_all_text_should_return_all_text_in_file() {
+  it "Should return a string containing all text in the file."
+
+  setUp
+
+  local path="$CLI_WORKDIR/logs/dummy.txt"
+
+  # This text is always added, making the file longer over time
+  # if it is not deleted.
+  echo "This is extra text" >> $path
+
+  # Read from the file.
+  contents=$( read_all_text $path )
+  assertEquals "Hello, World!
+This is extra text" "$contents"
+
+  tearDown
+}
+
+test_file_exists_should_throw_error_when_path_is_empty() {
+  it "Should throw an error when the path is null."
+
+  $( read_all_text )
+
+  assertIsError $?
+}
+
+test_file_exists_should_throw_error_when_path_is_invalid() {
+  it "Should throw an error when the specified path is invalid e.g. it is on an unmapped drive."
+
+  fake_path="/directorynotfound/"
+  $( read_all_text "$fake_path" )
+
+  assertIsError $?
+}
+
+test_file_exists_should_throw_error_when_file_not_found() {
+  it "Should throw an error when the file specified in path was not found."
+
+  local fake_path="$CLI_WORKDIR/logs/fakefile.txt"
+  $( read_all_text "$fake_path" )
+
+  assertIsError $?
+}
+
+test_copy_file_should_throw_error_when_paths_empty() {
+  it "Should throw an error when the specified file paths are a zero-length string."
+
+  $( copy_file ) 
+
+  assertIsError $?
+}
+
+test_copy_file_should_throw_error_when_paths_whitespace() {
+  it "Should throw an error when the specified file paths contains only white space."
+
+  local source_file=" "
+  local dest_file=" "
+
+  $( copy_file $source_file $dest_file ) 
+
+  assertIsError $?
+}
+
+test_copy_file_should_throw_error_when_source_file_not_found() {
+  it "Should throw an error when the source file was not found."
+
+  local fake_path="$CLI_WORKDIR/logs/fakefile.txt"
+
+  local source_file="/fakepath/from.txt"
+  local dest_file="/fakepath/to.txt"
+
+  $( copy_file $source_file $dest_file ) 
+
+  assertIsError $?
+}
+
+test_copy_file_should_copy_an_existing_file_to_a_new_file() {
+  it "Copies an existing file to a new file."
+
+  # Create a text file to copy.
+  setUp
+
+  local source_file="$CLI_WORKDIR/logs/dummy.txt" # Created in the test set up.
+  local dest_file="$CLI_WORKDIR/logs/dummy2.txt"
+
+  # Copy a text file.
+  $( copy_file $source_file $dest_file )
+
+  # Has the file been copied and if so, are the contents the same.
+  copied=false
+  
+  if [ -f "$dest_file" ]; then
+    copied=true
+  fi
+
+  assertTrue "$copied"
+  assertEquals "Hello, World!" "$( cat $dest_file )"
+
+  # Delete source files that were copied.
+  tearDown
+}
+
+__init__() {
+  test_read_all_text_should_throw_error_when_path_is_empty
+  test_read_all_text_should_return_all_text_in_file
+  test_file_exists_should_throw_error_when_path_is_empty
+  test_file_exists_should_throw_error_when_path_is_invalid
+  test_file_exists_should_throw_error_when_file_not_found
+  test_copy_file_should_throw_error_when_paths_empty
+  test_copy_file_should_throw_error_when_paths_whitespace
+  test_copy_file_should_throw_error_when_source_file_not_found
+  test_copy_file_should_copy_an_existing_file_to_a_new_file
+}

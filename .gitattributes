@@ -1,0 +1,29 @@
+###############################################################################
+# Set default behavior to:
+#   automatically normalize line endings on check-in
+###############################################################################
+*           text=auto
+
+###############################################################################
+# Set file behavior to:
+#   treat as text
+###############################################################################
+*.cmd       text
+*.config    text
+*.json      text
+*.md        text
+*.targets   text
+*.txt       text
+*.xlf       text
+*.xml       text
+
+###############################################################################
+# Set file behavior to:
+#   treat as text
+#   normalize to Unix-style line endings on check-in
+###############################################################################
+*.sh        text        eol=lf
+
+*.jpg  	binary
+*.png 	binary
+*.gif 	binary

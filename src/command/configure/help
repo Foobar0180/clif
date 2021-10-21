@@ -1,0 +1,28 @@
+#!/bin/sh
+
+. "${CLI_WORKDIR}/src/utils/utils"
+
+echo ""
+echo "CLI command line help."
+echo ""
+echo "${TEXT_BOLD}USAGE:${TEXT_NORMAL}"
+echo "  $ clif configure [commands] [[--] <arguments>]"       
+echo ""
+echo "${TEXT_BOLD}COMMANDS:${TEXT_NORMAL}"
+echo "  get             Get a configuration value from the config file."     
+echo "  help            Show command line help." 
+echo "  list            List the CLI configuration data."
+echo "  list-profiles   List all your profile names." 
+echo "  new             Creates a new CLI configuration file."     
+echo "  set             Set a configuration value from the config file."   
+echo "  set-default     Set the default profile for the CLI."
+echo ""
+echo "${TEXT_BOLD}EXAMPLES:${TEXT_NORMAL}"
+echo "  $ clif configure list"
+echo "  $ clif configure new --profile new_sdk --set-default"
+echo "  $ clif configure set --varname app_version --value 8.3.1"
+echo ""
+echo "  Or, simply run:"
+echo "  $ clif configure [command-options] -h|--help for more information on a command."
+echo ""
+exit 3

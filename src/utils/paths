@@ -1,0 +1,142 @@
+#!/bin/sh
+#
+# Performs operations on strings that contain file or directory path information. 
+# These operations are performed in a cross-platform manner.
+#
+# A path can contain absolute or relative location information. Absolute paths 
+# fully specify a location: the file or directory can be uniquely identified 
+# regardless of the current location. Relative paths specify a partial location: 
+# the current location is used as the starting point when locating a file 
+# specified with a relative path.
+
+#######################################
+# Calls the realpath utility if installed; otherwise, uses a fallback to perl. 
+# Arguments:
+#   The path being checked.
+# Outputs:
+#   Echos the a canonicalized absolute pathname.
+#######################################
+resolve_path() {
+  if [ -x "$( which realpath )" ]; then
+    # Expands all symbolic links and resolves references to /./, /../ and 
+    # extra / characters in the input path.
+
+    # Returns the canonicalized absolute pathname on success. The resulting 
+    # path will have no symbolic link, /./ or /../ components. Trailing 
+    # delimiters, such as \ and /, are also removed.
+    "$( which realpath )" "$1"
+  else
+    perl -e 'use Cwd "abs_path"; print abs_path(shift)' "$1"
+  fi
+}
+
+#######################################
+# Gets the absolute path for the specified path string. Typically this is the 
+# path to a desired resource on the user's file system.
+# Arguments:
+#   The file or directory for which to obtain absolute path information.
+# Outputs:
+#   Echos the fully qualified location of path, such as "/Users/lwinchester/MyFile.txt".
+#######################################
+get_full_path() {
+  eval ${invocation}
+
+  # Todo (dwinchester): Return the absolute path from a relative path and a 
+  # fully qualified base path.
+
+  local base_path=$1 # The beginning of a fully qualified path.
+  local path=$2 # A relative path to concatenate to base_path.
+
+  echo "$(cd "$(dirname "$1")" && pwd -P)/$(basename "$1")"
+}
+
+#######################################
+# Gets the current working directory.
+# Arguments:
+#   None
+# Outputs:
+#   Prints the full pathname of the current working directory to the stdout.
+#######################################
+get_current_dir() {
+  # to print to stdout as it is more robust than echo for unusual names
+  printf '%s\n' "${PWD##*/}"
+}
+
+#######################################
+# Removes the trailing slash from the end of a path.
+# Arguments:
+#   $input: The path to slice.
+# Outputs:
+#   Echos the original value but without the slash at the end.
+#######################################
+remove_trailing_slash() {
+  eval ${invocation}
+
+  local input="${1:-}"
+  echo "${input%/}"
+}
+
+#######################################
+# Removes the slash from the beginning of a path.
+# Arguments:
+#   $input: The path to slice.
+# Outputs:
+#   Echos the original value but without the slash at the beginning.
+#######################################
+remove_beginning_slash() {
+  eval ${invocation}
+
+  local input="${1:-}"
+  echo "${input#/}"
+}
+
+#######################################
+# Combines two strings into a path.
+# Arguments:
+#   $path1: Required. The first path to combine.
+#   $path2: Required. The second path to combine. 
+# Outputs:
+#   Echos the combined paths.
+#######################################
+combine_paths() {
+  eval ${invocation}
+
+  # Todo (dwinchester): Consider making it work with any number of paths using 
+  # arrays. For now:
+  if [ ! -z "${3:-}" ]; then
+    say_err "combine_paths: Function takes two parameters."
+    exit 1
+  fi
+
+  # Todo (dwinchester): If one of the specified paths is a zero-length 
+  # string, this method returns the other path. If path2 contains an absolute 
+  # path, this method returns path2.
+
+  # do some clean up just to be certain
+  local path1="$( remove_trailing_slash "${1}" )"
+  local path2="$( remove_beginning_slash "${2:-}" )"
+
+  # Concatenate the two strings together
+  combined="${path1}/${path2}"
+
+  echo ${combined}
+}
+
+#######################################
+# Gets the file name and extension of the specified path string.
+# Arguments:
+#   $path: A path from which to obtain the file name and extension.
+# Outputs:
+#   Echos the characters after the last directory separator character in path.
+#######################################
+get_file_name() {
+  eval ${invocation}
+
+  # The path from which to obtain the file name and extension.
+  local path="${1}"
+
+  # Return the characters after the last directory separator character in the 
+  # path. If the last character of path is a directory or volume separator 
+  # character, this method returns empty.
+  echo ${path##*/}
+}

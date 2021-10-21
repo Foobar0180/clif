@@ -1,0 +1,88 @@
+#!/bin/sh
+#
+# Set a configuration value from the config file.
+#
+# The configure set command can be used to update a single configuration value in 
+# the CLI config file.
+#
+# If the config file does not exist, one will automatically be created. If the 
+# configuration value already exists in the config file, it will updated with 
+# the new configuration value.
+#
+# You can also edit your settings directly by editing the config and files in 
+# a text editor.
+
+set -e
+. "${CLI_WORKDIR}/src/command/configure/helpers"
+
+show_help() {
+  echo ""
+  echo "Set a configuration value from the config file."
+  echo ""
+  echo "${TEXT_BOLD}USAGE:${TEXT_NORMAL}"
+  echo "  $ clif configure set [[--] <arguments>]"       
+  echo ""
+  echo "${TEXT_BOLD}ARGUMENTS:${TEXT_NORMAL}"
+  echo "  -h, --help                      Show command line help." 
+  echo "  -n, --varname <variable name>   The name of the config value to set." 
+  echo "  -p, --profile <profile name>    Use a specific profile."
+  echo "  -v, --value <variable value>    The value to be set." 
+  echo ""
+  echo "${TEXT_BOLD}EXAMPLES:${TEXT_NORMAL}"
+  echo "  $ clif configure set --varname app_version --value 8.3.1"
+  echo ""
+}
+
+profile_name=""
+
+while [ $# -ne 0 ]
+do
+  key="$1" 
+  case "$key" in
+    -h|--help|help)
+      show_help
+      exit 3
+      ;;
+    set)
+      ;;
+    -n|--varname)
+      shift
+      varname="$1"
+      ;;
+    -p|--profile)
+      shift
+      profile_name="$1"
+      ;;
+    -v|--value)
+      shift
+      value="$1"
+      ;;
+    *) 
+      say_err "$(unknown_command_message "$key")"
+      exit 3
+      ;;
+  esac
+  shift
+done
+
+# The variable name cannot be blank. 
+if [ -z "$varname" ]; then
+  say_err "A variable name is missing."; 
+  exit 1;
+fi
+
+# Specify the named profile that you want to update. 
+profile="$( config_path "$profile_name" )"
+
+# To set a single value, provide the configuration name followed by the 
+# configuration value.
+
+# To remove a setting, manually delete the setting in your profile using a 
+# text editor.
+
+# Todo (dwinchester): Use an empty string to delete a setting.
+
+set_config_value "$varname" "$value" "$profile"
+
+say "Saving settings file ... ${COLOR_GREEN}done${COLOR_NORMAL}"
+exit 0

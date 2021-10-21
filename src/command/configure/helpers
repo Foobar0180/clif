@@ -1,0 +1,31 @@
+#!/bin/sh
+#
+# Contains various helper functions used by the configure command.
+
+set -e
+. "${CLI_WORKDIR}/src/utils/utils"
+
+#######################################
+# Updates the specified setting in the file.
+# Arguments:
+#   $varname: The name of the config value to set.
+#   $value: The value to be set.
+#   $path: The file to write to.
+# Outputs:
+#   None
+#######################################
+set_config_value() {
+  eval ${invocation}
+
+  local varname=$1
+  local value=$2
+  local path=$3
+
+  if ! file_exists $path; then
+    say_err "No such file or directory found."
+    exit 1
+  fi
+
+  sed -i '' "s/\($(to_uppercase $varname) *= *\).*/\1$value/" "$path"
+  return 0
+}

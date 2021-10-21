@@ -1,0 +1,28 @@
+#!/bin/sh
+
+CLI_WORKDIR=$(cd $(dirname ${0}) && pwd)
+CLI_ENTRYPOINT=$(basename "${1}")
+
+. "$CLI_WORKDIR/src/utils/utils"
+
+# locate the correct level to display the help file for, either a directory
+# with no further arguments, or a command file
+cmd_arg_start=2
+cmd_name="${!cmd_arg_start}"
+cmd_file="$CLI_WORKDIR/src/command/$cmd_name"
+
+while [[ -d "$cmd_file" && $cmd_arg_start -le $# ]]; do
+  help_file="$cmd_file/help"
+  cmd_arg_start=$((${cmd_arg_start}+1))
+done
+
+# if a directory has a help file, then show it
+if [[ -d "$cmd_file" ]]; then
+  if [[ -f "$help_file" ]]; then
+    "$help_file"
+  else
+    # no help file was found, so instead show the cli help
+    "$CLI_WORKDIR/src/command/help"
+  fi
+  exit 0
+fi

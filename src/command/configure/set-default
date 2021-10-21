@@ -1,0 +1,58 @@
+#!/bin/sh
+#
+# To use a named profile for multiple commands, you can avoid specifying the 
+# profile in every command by setting the CLI_PROFILE variable.
+
+set -e
+. "$CLI_WORKDIR/src/command/configure/helpers"
+
+show_help() {
+  echo ""
+  echo "Set the default profile for the CLI."
+  echo ""
+  echo "${TEXT_BOLD}USAGE:${TEXT_NORMAL}"
+  echo "  $ clif configure set-default [[--] <arguments>]"       
+  echo ""
+  echo "${TEXT_BOLD}ARGUMENTS:${TEXT_NORMAL}"
+  echo "  -h, --help                    Show command line help." 
+  echo "  -p, --profile <profile name>  The new default profile name."
+  echo ""
+  echo "${TEXT_BOLD}EXAMPLES:${TEXT_NORMAL}"
+  echo "  $ clif configure set-default --profile second_user"
+  echo ""
+  exit 3
+}
+
+profile_name=""
+
+while [ $# -ne 0 ]
+do
+  key="$1" 
+  case "$key" in
+    -h|--help|help)
+      show_help
+      ;;
+    set-default)
+      ;;
+    -p|--profile)
+      shift
+      profile_name="$1"
+      ;;
+    *)    
+      say_err "$(unknown_command_message "$key")"
+      exit 3
+      ;;
+  esac
+  shift
+done
+
+# If no profile name is provided to the CLI when running the command, print out 
+# a description of how to use the command.
+[ -z "$profile_name" ] && show_help
+
+# Set the name of the default profile that should be used when no profile is 
+# explicitly referenced.
+set_config_value "CLI_PROFILE" "$profile_name" "$CLI_WORKDIR/CONFIG"
+
+say "Setting the default profile ... ${COLOR_GREEN}done${COLOR_NORMAL}"
+exit 0

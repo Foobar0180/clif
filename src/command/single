@@ -1,0 +1,37 @@
+#!/bin/sh
+#
+# Create a multi-command CLI.
+
+set -e
+. "$CLI_WORKDIR/src/utils/utils"
+
+# We do this to prevent the command from creating an empty option file when no 
+# command name is passed.
+if [ $# == 0 ]; then
+  say_err "A command name must be provided."
+  exit 1
+fi
+
+new_cmd="$1"
+
+# You can call your CLI command anything you like by replacing the name of your 
+# choice.
+cmd_file="$CLI_WORKDIR/src/command/$new_cmd"
+
+if [[ -f "$cmd_file" ]]; then
+  say_err "A command $new_cmd already exists at this location. Please choose a different name."
+  exit 1
+fi
+
+# Create the new command file.
+
+echo "#!/bin/sh
+
+echo \"Hello, World!\"" >> "$cmd_file"
+
+say "Creating new single-command $new_cmd ... ${COLOR_GREEN}done${COLOR_NORMAL}"
+
+# Update the permissions mode of the new command file.
+"$CLI_WORKDIR/src/command/grant-permission"
+
+exit 0

@@ -1,0 +1,33 @@
+#!/bin/sh
+
+. "${CLI_WORKDIR}/src/utils/utils"
+
+echo ""
+echo "CLI command line help."
+echo ""
+echo "${TEXT_BOLD}VERSION:${TEXT_NORMAL}"
+echo "  $( cat $CLI_WORKDIR/VERSION )"
+echo ""
+print_sysinfo
+echo ""
+echo "${TEXT_BOLD}USAGE:${TEXT_NORMAL}"
+echo "  $ clif [command] [command-options] [[--] <arguments>]"       
+echo ""
+echo "${TEXT_BOLD}COMMANDS:${TEXT_NORMAL}"
+echo "  configure         Configure your CLI profile."
+echo "  grant-permission  Recursively sets permissions on all CLI files."
+echo "  help              Show command line help."
+echo "  multi             Create a multi-command CLI."
+echo "  single            Create a single-command CLI."
+echo "  test              Run unit tests using the built-in test runner."
+echo "  update            Updates the CLI to the latest version."
+echo "  version           Prints out the version of the CLI in use." 
+echo ""
+echo "${TEXT_BOLD}EXAMPLES:${TEXT_NORMAL}"
+echo "  $ clif configure list"
+echo "  $ clif version"
+echo ""
+echo "  Or, simply run:"
+echo "  $ clif [command] -h|--help for more information on a command."
+echo ""
+exit 3

@@ -1,0 +1,13 @@
+#!/bin/sh
+#
+# Recursively sets permissions on all CLI files to an octal value of 775.
+#
+# 775 changes the permissions mode of a file or directory so that the owner 
+# and group has full read/write/execute access to the contents.
+
+set -e
+. "$CLI_WORKDIR/src/utils/utils"
+
+chmod -R 775 "$CLI_WORKDIR" # This is the default installation for the CLI.
+
+say "Recursively set permissions on all CLI files ... ${COLOR_GREEN}done${COLOR_NORMAL}"

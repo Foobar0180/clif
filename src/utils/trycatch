@@ -1,0 +1,68 @@
+#!/bin/bash
+# 
+# The try-catch statement consists of a try block followed by one or more catch 
+# clauses, which specify handlers for different exceptions.
+
+#######################################
+# The try block contains the guarded code that may cause the exception. The 
+# block is executed until an exception is thrown or it is completed successfully.
+# Arguments:
+#   Any statements that might raise an exception.
+# Outputs:
+#   None.
+#######################################
+function try() {
+  [[ $- = *e* ]]; SAVED_OPT_E=$?
+  set +e
+}
+
+#######################################
+# A throw statement can be used in a catch block to re-throw the exception that 
+# is caught by the catch statement. When an exception is thrown we exit with 
+# code 1.
+# Arguments:
+#   Any exception to throw.
+# Outputs:
+#   None.
+#######################################
+function throw() {
+  exit $1
+}
+
+#######################################
+# The catch clause can be used without arguments to catch any type of exception, 
+# this usage is not recommended. In general, you should only catch those 
+# exceptions that you know how to recover from. 
+# Arguments:
+#   An exception code that represents a given error.
+# Outputs:
+#   None.
+#######################################
+function catch() {
+  export ex_code=$?
+  (( ${SAVED_OPT_E} )) && set +e
+  return ${ex_code}
+}
+
+#######################################
+# Exit immediately if a pipeline, which may consist of a single simple command, 
+# a list, or a compound command returns a non-zero status. 
+# Arguments:
+#   None
+# Outputs:
+#   None.
+#######################################
+function throwErrors() {
+  set -e
+}
+
+#######################################
+# Causes the exit option to be turned off, so that all errors are ignored. 
+# Arguments:
+#   None
+# Outputs:
+#   None.
+#######################################
+function ignoreErrors() {
+  set +e
+}

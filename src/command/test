@@ -1,0 +1,193 @@
+#!/bin/sh
+#
+# The test command orchestrates the execution of the specified tests and 
+# provides the outcome to the user. The runner provides feedback through a 
+# textual interface, and returns the results of executing the tests.
+
+. "${CLI_WORKDIR}/src/utils/colors"
+. "${CLI_WORKDIR}/src/utils/utils"
+
+# Todo (dwinchester): Surface these through discovery.
+. "${CLI_WORKDIR}/tests/test_files"
+. "${CLI_WORKDIR}/tests/test_paths"
+. "${CLI_WORKDIR}/tests/test_utils"
+
+TESTS_DIR="${CLI_WORKDIR}/tests" # The directory to start discovery.
+PATTERN="test_*" # Pattern to match test files.
+PASSED=0 # The total number of tests that pass.
+FAILED=0 # The total number of tests that fail.
+
+func_it=""
+start=$(date +%s)
+
+#######################################
+# Find all the test files contained within the "tests/" directory
+# Arguments:
+#   None
+# Outputs:
+#   Find all the tests by recursing into subdirectories from the specified 
+#   start directory.
+#######################################
+discover() {
+  cd $TESTS_DIR
+
+  echo "======================================================================"
+  echo "Tests found"
+  echo "----------------------------------------------------------------------"
+  
+  find . -name "$PATTERN" | while read f; do
+    echo "$( basename "$f" )"
+  done
+}
+
+# Assert is a collection of methods useful in determining the pass or fail status 
+# of a test case.
+
+passed() {
+  ((PASSED=PASSED+1))
+  # echo "$func_name ... ${COLOR_GREEN}OK${COLOR_NORMAL}"
+}
+
+failed() {
+  local message=$1
+
+  echo "$message"
+  ((FAILED=FAILED+1))
+}
+
+#######################################
+# Tests whether the specified values are equal. If the values do not compare 
+# equal, the test will fail.
+# Arguments:
+#   $expected: The first value to compare. This is the value the tests expects.
+#   $actual: The second value to compare. This is the value produced by the 
+#   code under test.
+# Outputs:
+#   Determines whether the "expected" is not equal to "actual".
+#######################################
+assertEquals() {
+  local expected=$1
+  local actual=$2
+  local func_name=${FUNCNAME[1]}
+
+  if [ "${expected}" == "${actual}" ]; then
+    passed
+  else
+    message="\n$func_name
+  ${COLOR_RED}Test failed. Expected '$expected' but was '$actual'.${COLOR_NORMAL}"
+    failed "$message"
+  fi
+}
+
+#######################################
+# Tests whether the specified condition is true and returns a failure if the 
+# condition is false. This method should be avoided when more specific methods 
+# are available because they provide a better error messages.
+# Arguments:
+#   $condition: The condition the test expects to be true.
+#   $message: The message to include in the exception when $condition is false. 
+#   The message is shown in test results.
+# Outputs:
+#   Determines whether the "expected" is not equal to "actual".
+#######################################
+assertTrue() {
+  local condition=$1
+  local message=$2
+  local func_name=${FUNCNAME[1]}
+
+  if [ -z "$message" ]; then
+     message="\n$func_name
+  ${COLOR_RED}$condition is not true. Test value is not equal to true.${COLOR_NORMAL}"
+  fi
+
+  if $condition; then
+    passed
+  else 
+    failed "$message"
+  fi
+}
+
+assertIsError() {
+  # $? -eq 1
+  assertEquals "1" "$1"
+}
+
+#######################################
+# The it function identifies individual tests but by itself it does not tell 
+# the CLI anything about how your test suite is structured.
+# Arguments:
+#   A human-readable description of the test case to be run.
+# Outputs:
+#   None
+#######################################
+it() {
+  func_it=$1
+}
+
+# run() {
+#   say "Starting test execution, please wait..."
+#   cd $TESTS_DIR
+#   find . -name "$PATTERN" | while read f; do
+#     . "$TESTS_DIR/$( basename "$f" )" && "__init__" >&1
+#   done
+# }
+
+# Todo (dwinchester): Remove hard-coded tests.
+
+#######################################
+# Run the tests, printing the outcome to the user.
+# Arguments:
+#   None
+# Outputs:
+#   None
+#######################################
+run() {
+  say "Starting test execution, please wait..."
+
+  test_to_lowercase_should_transform_all_characters_in_string_to_lowercase
+  test_to_uppercase_should_transform_all_characters_in_string_to_uppercase
+  test_trim_whitespace_should_trim_all_whitespace_characters_from_string
+  test_config_path_should_return_the_file_path
+  test_config_path_should_throw_error_when_no_file_exists
+  test_read_all_text_should_throw_error_when_path_is_empty
+  test_read_all_text_should_return_all_text_in_file
+  test_file_exists_should_throw_error_when_path_is_empty
+  test_file_exists_should_throw_error_when_path_is_invalid
+  test_file_exists_should_throw_error_when_file_not_found
+  test_get_full_path_should_return_the_absolute_path_for_the_path
+  test_get_file_name_should_return_filename_with_extension
+  test_get_file_name_should_return_empty_when_path_is_directory
+  test_get_file_name_should_return_empty_when_path_is_empty
+  test_get_file_name_should_return_path_when_path_has_no_separator
+  test_copy_file_should_throw_error_when_paths_empty
+  test_copy_file_should_throw_error_when_paths_whitespace
+  test_copy_file_should_throw_error_when_source_file_not_found
+  test_copy_file_should_copy_an_existing_file_to_a_new_file
+}
+
+discover
+run
+
+# Calculate results.
+total=$(($PASSED + $FAILED))
+end=$(date +%s)
+elapsed=`printf "%.3f" $(echo "$end-$start" | bc)`
+
+echo ""
+echo "----------------------------------------------------------------------"
+echo "Ran $total tests in ${elapsed}s" 
+echo ""
+echo "${COLOR_GREEN}✓ $PASSED passed${COLOR_NORMAL}"
+echo "${COLOR_RED}✗ $FAILED failed${COLOR_NORMAL}"
+echo ""
+
+if [ $FAILED -gt 0 ]; then
+  echo "FAILED (errors=$FAILED)"
+else
+  echo "OK"
+fi
+
+echo ""
+echo "Process finished with exit code 0."
+echo ""
+exit 0

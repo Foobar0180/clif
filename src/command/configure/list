@@ -1,0 +1,66 @@
+#!/bin/sh
+#
+# List the CLI configuration data. This command will show you the current 
+# configuration.
+
+set -e
+. "$CLI_WORKDIR/src/utils/utils"
+
+show_help() {
+  echo ""
+  echo "Displays your current configuration values."
+  echo ""
+  echo "${TEXT_BOLD}USAGE:${TEXT_NORMAL}"
+  echo "  $ clif configure list [[--] <arguments>]"       
+  echo ""
+  echo "${TEXT_BOLD}ARGUMENTS:${TEXT_NORMAL}"
+  echo "  -h, --help                      Show command line help." 
+  echo "  -p, --profile <profile name>    Use a specific profile."
+  echo ""
+  echo "${TEXT_BOLD}EXAMPLES:${TEXT_NORMAL}"
+  echo "  $ clif configure list" 
+  echo "  $ clif configure list --profile testing"
+  echo ""
+}
+
+profile_name=""
+
+while [ $# -ne 0 ]
+do
+  key="$1" 
+  case "$key" in
+    -h|--help|help)
+      show_help
+      exit 3
+      ;;
+    list)
+      ;;
+    -p|--profile)
+      shift
+      profile_name="$1"
+      ;;     
+    *)
+      say_err "$( unknown_command_message "$key" )"
+      exit 3
+      ;;
+  esac
+  shift
+done
+
+# A collection of settings is called a profile. By default, the CLI uses the 
+# default profile. You can create additional named profiles by using the new 
+# command with the --profile option and then assigning a name.
+
+profile=$( config_path "$profile_name" )
+
+say "Listing configuration data for profile: ${TEXT_BOLD}$( get_file_name $profile )${TEXT_NORMAL}"
+say "See wiki for descriptions of global parameters."
+
+# Read the contents of the file to show your current configuration values.
+
+# For each configuration item, it will show you the value, where the configuration 
+# value was retrieved, and the configuration variable name.
+
+read_all_text $profile
+
+exit 0

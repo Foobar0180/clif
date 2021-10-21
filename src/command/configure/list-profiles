@@ -1,0 +1,16 @@
+#!/bin/sh
+#
+# List all your profile names.
+
+set -e
+. "$CLI_WORKDIR/src/utils/utils"
+
+# This folder contains all configuration files, including the default profile 
+# and any other named profiles.
+
+path=$( get_full_path "$CLI_WORKDIR/src/config" )
+
+for f in $path/*.settings; do
+  echo "$(basename ${f%.*})" # Remove the file extension.
+done
+exit 0

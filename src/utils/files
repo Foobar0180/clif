@@ -1,0 +1,99 @@
+#!/bin/sh
+#
+# Provides various methods for the creation, copying, deletion, moving, and 
+# opening of a single file, and aids in the creation of directories.
+
+#######################################
+# Determines whether the specified file exists. The file_exists function 
+# should not be used for path validation, this method merely checks if the 
+# file specified in path exists. 
+# Arguments:
+#   $path: The file to check.
+# Outputs:
+#   Returns if the path contains the name of an existing file; otherwise, 
+#   exits with code 1. This method checks to see if the path is exists, an 
+#   invalid path, or a zero-length string.
+#######################################
+file_exists() {
+  eval ${invocation}
+
+  local path=$1
+
+  # Argument null or empty exception when the length of string is zero.
+  if [ -z $path ]; then
+    say_err "The path is null."
+    exit 1
+  fi
+
+  # Directory not found exception.
+  if [[ -d $path ]]; then
+    say_err "No such file or directory found: The specified path is invalid."
+    exit 1
+  fi
+
+  # No file found exception.
+  if [[ ! -f $path ]]; then
+    say_err "No such file or directory found: The file specified in path was not found."
+    exit 1
+  fi
+
+  return 0 # Everything is Ok.
+}
+
+#######################################
+# Reads all the text in a single file into a string.
+# Arguments:
+#   The file to open for reading.
+# Outputs:
+#   Echos all the text in the file line-by-line.
+#######################################
+read_all_text() {
+  eval ${invocation}
+
+  local path=$1
+
+  if ! file_exists $path; then
+    say_err "No such file or directory found."
+    exit 1
+  fi
+
+  contents=`cat $path`
+  echo "$contents"
+
+  exit 0
+}
+
+#######################################
+# Copies an existing file to a new file. Will not overwrite if the destination 
+# file already exists.
+# Arguments:
+#   $source_file: The file to copy.
+#   $dest_file: The name of the destination file. This cannot be a directory or 
+#   an existing file.
+# Outputs:
+#   None
+#######################################
+copy_file() {
+  eval ${invocation}
+
+  local source_file="$1"
+  local dest_file="$2"
+
+  # The $source_file or $dest_file is a zero-length string, contains only 
+  # white space. 
+  if [ -z "$source_file" ] || [ -z "$dest_file" ]; then
+    say_err "The source file or destination file path is not set."
+    exit 1
+  fi
+
+  # The path specified is invalid.
+  if ! file_exists $source_file; then
+    say_err "No such file or directory found."
+    exit 1
+  fi
+
+  say "Copying $( get_file_name $source_file) to $( get_file_name $dest_file) ... ${COLOR_GREEN}done${COLOR_NORMAL}"
+
+  cp "$source_file" "$dest_file" 
+  exit 0
+}

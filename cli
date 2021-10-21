@@ -1,0 +1,85 @@
+#!/bin/sh
+
+# Stop script on NZEC
+set -e
+
+# Standard output may be used as a return value in the functions
+# we need a way to write text on the screen in the functions so that
+# it won't interfere with the return value.
+# Exposing stream 3 as a pipe to standard output of the script itself
+exec 3>&1
+
+# Retrieve the filename with extension from the current working directory.
+export CLI_WORKDIR=$(cd $(dirname ${0}) && pwd)
+
+# Include any external sources here.
+. "$CLI_WORKDIR/src/utils/utils"
+
+export_cli_settings() {
+  # We need to export the top-level CLI config file. This specifies the current
+  # default profile and other global values to be used be executing scripts.
+  export $(cat $( combine_paths "$CLI_WORKDIR" "/CONFIG" ) | xargs)
+  export $(cat $( config_path "$CLI_PROFILE" ) | xargs)
+}
+
+cli_entrypoint() {
+  export_cli_settings # Load the config
+
+  # Locate the correct command to execute by looking through the app directory
+  # for folders and files which match the arguments provided on the command line.
+  local cmd_arg_start=1
+  local cmd_file="$CLI_WORKDIR/src/command"
+
+  while [[ -d "$cmd_file" && $cmd_arg_start -le $# ]]; do # Iterate over the command args
+    # If the user provides help as the last argument on a directory, then
+    # show them the help for that directory rather than continuing.
+    if [[ "${!cmd_arg_start}" == "help" ]]; then
+      # Strip off the "help" portion of the command.
+      local args=("$@")
+      unset "args[$((cmd_arg_start-1))]"
+      args=("${args[@]}")
+
+      "$CLI_WORKDIR/help" $0 ${args[@]}
+      exit 3
+    fi
+
+    cmd_file="$cmd_file/${!cmd_arg_start}"
+    cmd_arg_start=$((cmd_arg_start+1))
+  done
+
+  # If we hit a directory by the time we run out of arguments, then our user
+  # hasn't completed their command, so we'll show them the help for that directory
+  # to help them along.
+  if [ -d "$cmd_file" ]; then
+    "$CLI_WORKDIR/help" $0 $@
+    exit 3
+  fi
+
+  # If we didn't couldn't find the exact command the user entered then warn them
+  # about it, and try to be helpful by displaying help for that directory.
+  if [[ ! -f "$cmd_file" ]]; then
+    "$CLI_WORKDIR/help" $0 ${@:1:$((cmd_arg_start-1))}
+    exit 3
+  fi
+
+  # Place the arguments for the command in their own list to make future work 
+  # with them easier.
+  local cmd_args=("${@:cmd_arg_start}")
+
+  # Run the command and capture its exit code for introspection.
+  "$cmd_file" ${cmd_args[@]}
+  EXIT_CODE=$?
+
+  # If the command exited with an exit code of 3 then show the help documentation 
+  # for the command.
+  if [[ ${EXIT_CODE} == 3 ]]; then
+    say_warning 'Exited with code 3.'
+    "$CLI_WORKDIR/help" "$0" "$@"
+  fi
+
+  # Exit with the same code as the command.
+  exit $EXIT_CODE
+}
+
+# Run the CLI.
+cli_entrypoint "$@"

@@ -1,0 +1,7 @@
+#!/bin/sh
+#
+# Contains various functions that allow reading and writing to files, and provides 
+# file and directory support.
+
+. "$CLI_WORKDIR/src/utils/files"
+. "$CLI_WORKDIR/src/utils/paths"
