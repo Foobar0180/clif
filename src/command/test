@@ -11,6 +11,7 @@
 . "${CLI_WORKDIR}/tests/test_files"
 . "${CLI_WORKDIR}/tests/test_paths"
 . "${CLI_WORKDIR}/tests/test_utils"
+. "${CLI_WORKDIR}/tests/test_version"
 
 TESTS_DIR="${CLI_WORKDIR}/tests" # The directory to start discovery.
 PATTERN="test_*" # Pattern to match test files.
@@ -31,7 +32,7 @@ start=$(date +%s)
 discover() {
   cd $TESTS_DIR
 
-  echo "======================================================================"
+  echo "\n======================================================================"
   echo "Tests found"
   echo "----------------------------------------------------------------------"
   
@@ -163,6 +164,7 @@ run() {
   test_copy_file_should_throw_error_when_paths_whitespace
   test_copy_file_should_throw_error_when_source_file_not_found
   test_copy_file_should_copy_an_existing_file_to_a_new_file
+  test_version_should_return_file_contents
 }
 
 discover

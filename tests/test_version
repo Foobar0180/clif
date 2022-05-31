@@ -1,0 +1,18 @@
+#!/bin/sh
+
+. "$CLI_WORKDIR/src/utils/utils"
+
+suppress="true" # Suppress any process output from commands.
+
+test_version_should_return_file_contents() {
+  it "Run the 'version' command and then compare the results with the file contents"
+
+  # Read the contents of the file
+  contents=$( read_all_text "$CLI_WORKDIR/VERSION" )
+
+  assertEquals "1.2.0-RC" "$contents"
+}
+
+__init__() {
+  test_version_should_return_file_contents
+}
