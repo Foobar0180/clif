@@ -12,20 +12,18 @@ if [ $# == 0 ]; then
   exit 1
 fi
 
-new_cmd="$1"
-
 # You can call your CLI command anything you like by replacing the name of your 
 # choice.
-new_multi_dir="$CLI_WORKDIR/src/command/$new_cmd"
+new_cmd="$CLI_WORKDIR/src/command/$1"
 
-if [[ -d "$new_multi_dir" ]]; then
+if [[ -d "$new_cmd" ]]; then
   say_err "A command $new_cmd already exists at this location. Please choose a different name."
   exit 1
 fi
 
 # Your new CLI command is created locally and the relevant code is in the new 
 # directory.
-mkdir -p "$new_multi_dir"
+mkdir -p "$new_cmd"
 
 # Create the new command and help files.
 
@@ -37,13 +35,13 @@ echo \"  $ clif $new_cmd [commands] [[--] <arguments>]\"
 echo \"\"
 echo \"COMMANDs:\"
 echo \"  hello   Describe the hello command.\"
-echo \"  help    Show command line help.\"" >> "$new_multi_dir/help"
+echo \"  help    Show command line help.\"" >> "$new_cmd/help"
 
 # ./hello
 
 echo "#!/bin/sh
 
-echo \"Hello, World!\"" >> "$new_multi_dir/hello"
+echo \"Hello, World!\"" >> "$new_cmd/hello"
 
 say "Creating new multi-command $new_cmd ... ${COLOR_GREEN}done${COLOR_NORMAL}"
 
