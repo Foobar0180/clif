@@ -1,0 +1,26 @@
+#!/bin/sh
+#
+# Adds the named alias to the bash profile.
+
+set -e
+. "$CLI_WORKDIR/src/utils/utils"
+
+# Stops the command from creating an empty alias.
+if [ $# == 0 ]; then
+  say_err "An alias name must be provided."
+  exit 1
+fi
+
+# We assume! since that the user is already using the generator command, 
+# that they have the default alias and bash profile already created
+bash_profile="${HOME}/.bash_profile"
+alias="$1"
+  
+echo "" >> "$bash_profile" # add a blank line
+echo "# $( to_uppercase "$alias")" >> "$bash_profile"
+echo "alias $alias=\"$CLI_WORKDIR/cli"\" >> "$bash_profile" # append the alias
+
+say "${COLOR_CYAN}clif-cli:${COLOR_NORMAL} Adding $alias alias to .bash_profile ... ${COLOR_GREEN}OK${COLOR_NORMAL}"
+say "${COLOR_CYAN}clif-cli:${COLOR_NORMAL} Please quit the terminal and relaunch"
+
+exit 3

@@ -44,7 +44,7 @@ grant_permissions() {
   echo "${COLOR_CYAN}clif-cli:${COLOR_NORMAL} Grant permissions ... ${COLOR_GREEN}OK${COLOR_NORMAL}"
 }
 
-# Adds the clif alias to the users .bash_profile.
+# Adds the generator named alias to local .bash_profile.
 update_bash_profile() {
   bash_profile="${HOME}/.bash_profile"
   if [ ! -f "${bash_profile}" ]; then
@@ -57,7 +57,7 @@ update_bash_profile() {
     echo "${COLOR_CYAN}clif-cli:${COLOR_NORMAL} Create .bash_profile ... ${COLOR_GREEN}OK${COLOR_NORMAL}"
   fi
 
-  # Add the alias to the bash_profile.
+  # Add the alias to the bash_profile
   echo "" >> "${bash_profile}" # add a blank line
   echo "# clif CLI" >> "${bash_profile}"
   echo "alias clif=\"${CLI_INSTALL_PATH}/cli"\" >> "${bash_profile}" # append the alias
@@ -76,7 +76,7 @@ get_project() {
 }
 
 is_cli_installed() {
-  # The CLI is already installed and can simply be updated, so we can exit.
+  # The CLI is already installed and can simply be updated, so we can exit
   if [ -d "${CLI_INSTALL_PATH}" ]; then
     echo "${COLOR_RED}clif-cli:${COLOR_NORMAL} The CLI is already installed. Please run '$ clif update'."
     exit 1
@@ -85,7 +85,7 @@ is_cli_installed() {
 
 copy_to() {
   # Copy the contents of the cloned project by moving it to the specified 
-  # install path.
+  # install path
   cli_dir="${HOME}/usr/local/"
   [ ! -d "${cli_dir}" ] && mkdir -p ${cli_dir}
 
